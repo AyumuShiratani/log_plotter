@@ -13,6 +13,7 @@ from log_plotter.plot_utils import my_time
 from log_plotter.log_parser import LogParser
 try:
     import pyqtgraph
+    import pyqtgraph.exporters
 except:
     print("please install pyqtgraph. see http://www.pyqtgraph.org/")
     sys.exit(1)
@@ -403,6 +404,7 @@ def main():
     parser.add_argument("-i", action='store_true', help='interactive (start IPython)')
     parser.add_argument('--start', type=int, default = 0, help='row index to start reading')
     parser.add_argument('--length', type=int, default = 0, help='maximum length for reading data')
+    parser.add_argument("-img", type=str, help='output image path', metavar='image', default=None)
     parser.set_defaults(feature=False)
     args = parser.parse_args()
     # main
@@ -412,6 +414,13 @@ def main():
         args.plot, args.layout = get_yamls_path()
     a = LogPlotter(args.f, args.plot, args.layout, args.t, start_idx=args.start, data_length=args.length)
     a.main()
+
+    if args.img is not None:
+        pyqtgraph.Qt.QtGui.QApplication.instance()
+        exporter = pyqtgraph.exporters.ImageExporter(a.view.scene())
+        exporter.parameters()['width'] = 1600
+        exporter.export(args.img)
+        return
 
     if args.i:
         [app.processEvents() for i in range(2)]
